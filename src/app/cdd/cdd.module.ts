@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
-import { AppMaterialModule } from '../compartilhado/app-material.module';
+import { AppMaterialModule } from '../app-compartilhado/app-material/app-material.module';
 
 
 import { CddRoutingModule } from './cdd-routing.module';
