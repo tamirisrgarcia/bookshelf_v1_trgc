@@ -1,0 +1,14 @@
+{
+  "targets": {
+    "bookshelfv1-add96": {
+      "hosting": {
+        "bookshelf_v1_trgc": [
+          "bookshelfv1-add96"
+        ]
+      }
+    }
+  },
+  "projects": {
+    "default": "bookshelfv1-add96"
+  }
+}
