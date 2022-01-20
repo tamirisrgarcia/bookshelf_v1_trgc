@@ -1,9 +1,14 @@
-import { NavegacaoService } from './../servicosInterface/navegacao.service';
-import { MenuNavegador } from './../modelosInterface/menu-navegador';
-import { Component } from '@angular/core';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
-import { Observable, catchError, of } from 'rxjs';
+import { Component } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
+import { Router } from '@angular/router';
+import { catchError, Observable, of } from 'rxjs';
 import { map, shareReplay } from 'rxjs/operators';
+
+import { AppLoginComponent } from './../app-login/app-login.component';
+import { MenuNavegador } from './../modelosInterface/menu-navegador';
+import { AutenticacaoFirebaseService } from './../servicosInterface/autenticacao-firebase.service';
+import { NavegacaoService } from './../servicosInterface/navegacao.service';
 
 @Component({
   selector: 'app-navegacao',
@@ -11,6 +16,7 @@ import { map, shareReplay } from 'rxjs/operators';
   styleUrls: ['./navegacao.component.scss']
 })
 export class NavegacaoComponent {
+  usuario$ = this.autenticacaoFirebaseService.usuarioLogado$;
   //itens do Menu principal
   tituloNav = "BookShelf v1";
   // itens da Barra superior
@@ -29,12 +35,27 @@ export class NavegacaoComponent {
 
   constructor(
     private breakpointObserver: BreakpointObserver,
-    private navegacaoService: NavegacaoService) {
-      this.itensMenu$ = navegacaoService.listagemMenu()
+    public telaLogin: MatDialog,
+    private autenticacaoFirebaseService: AutenticacaoFirebaseService,
+    private rotas: Router,
+    private navegadorService: NavegacaoService) {
+      this.itensMenu$ = navegadorService.listagemMenu()
       .pipe(
         catchError (error => {
           return of([])
         })
       )
+    }
+
+    abrirLogin(erroMsg: string) {
+      this.telaLogin.open(AppLoginComponent, {
+        data:erroMsg
+      })
+    }
+
+    sairUsuario() {
+      this.autenticacaoFirebaseService.sairLogin().subscribe(() => {
+        this.rotas.navigate([''])
+      })
     }
 }
