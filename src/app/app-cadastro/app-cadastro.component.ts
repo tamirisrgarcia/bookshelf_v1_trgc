@@ -1,5 +1,9 @@
+import { Router } from '@angular/router';
+import { HotToastService } from '@ngneat/hot-toast';
 import { Component, OnInit } from '@angular/core';
 import { AbstractControl, FormBuilder, FormControl, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
+
+import { AutenticacaoFirebaseService } from '../servicosInterface/autenticacao-firebase.service';
 
 export function passwordMatchValidator(): ValidatorFn {
   return(control: AbstractControl): ValidationErrors | null => {
@@ -27,9 +31,13 @@ export class AppCadastroComponent implements OnInit {
     email: new FormControl('', [Validators.required, Validators.email]),
     senha: new FormControl('', Validators.required),
     confirmaSenha: new FormControl('', Validators.required),
-  }, {validator: passwordMatchValidator()});
+  }, {validators: passwordMatchValidator()});
 
-  constructor(private loginBuilder: FormBuilder) { }
+  constructor(
+    private loginBuilder: FormBuilder,
+    private autenticacaoFirebaseService: AutenticacaoFirebaseService,
+    private toast: HotToastService,
+    private rotas: Router) { }
 
   get nome(){
     return this.formularioCadastro.get('nome');
@@ -48,7 +56,20 @@ export class AppCadastroComponent implements OnInit {
   }
 
   enviaCadastro() {
-    alert('Parabéns!')
+    if(!this.formularioCadastro.valid){
+      return;
+    }
+    const {nome, email, senha} = this.formularioCadastro.value;
+    this.autenticacaoFirebaseService.cadastrarUsuario(nome, email, senha)
+    .pipe(
+      this.toast.observe({
+        success: 'Cadastro executado, bem vindo(a) ao BookShelf',
+        loading: 'Enviando informações...',
+        error:({ message }) => `Houve um problema: #BS ${message}`,
+      })
+    ).subscribe(() => {
+      this.rotas.navigate(['/'])
+    })
   }
 
   ngOnInit(): void {
